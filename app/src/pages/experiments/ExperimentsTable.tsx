@@ -425,6 +425,8 @@ export function ExperimentsTable({
               onExperimentDeleted={() => {
                 refetch({}, { fetchPolicy: "network-only" });
               }}
+              canModifyExperimentInfo={true}
+              onExperimentInfoModified={() => {}}
             />
           </Flex>
         );
