@@ -36,9 +36,10 @@ export enum ExperimentAction {
   COPY_EXPERIMENT_ID = "COPY_EXPERIMENT_ID",
   VIEW_METADATA = "VIEW_METADATA",
   DELETE_EXPERIMENT = "DELETE_EXPERIMENT",
+  MODIFY_EXPERIMENT_INFO = "MODIFY_EXPERIMENT_INFO",
 }
 
-type ExperimentActionMenuProps =
+type BaseExperimentActionMenuProps =
   | {
       projectId?: string | null;
       experimentId: string;
@@ -54,6 +55,16 @@ type ExperimentActionMenuProps =
       onExperimentDeleted?: undefined;
     };
 
+type ExperimentActionMenuProps =
+  | (BaseExperimentActionMenuProps & {
+      canModifyExperimentInfo: true;
+      onExperimentInfoModified: () => void;
+    })
+  | (BaseExperimentActionMenuProps & {
+      canModifyExperimentInfo: false;
+      onExperimentInfoModified?: undefined;
+    });
+
 export function ExperimentActionMenu(props: ExperimentActionMenuProps) {
   const [commitDeleteExperiment, isDeletingExperiment] = useMutation(graphql`
     mutation ExperimentActionMenuDeleteExperimentMutation(
@@ -68,6 +79,10 @@ export function ExperimentActionMenu(props: ExperimentActionMenuProps) {
   const navigate = useNavigate();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isMetadataDialogOpen, setIsMetadataDialogOpen] = useState(false);
+  const [
+    isModifyExperimentInfoDialogOpen,
+    setIsModifyExperimentInfoDialogOpen,
+  ] = useState(false);
   const notifySuccess = useNotifySuccess();
   const notifyError = useNotifyError();
   const onExperimentDeleted = props.onExperimentDeleted;
@@ -162,6 +177,24 @@ export function ExperimentActionMenu(props: ExperimentActionMenuProps) {
       </MenuItem>
     );
   }
+  if (props.canModifyExperimentInfo) {
+    menuItems.push(
+      <MenuItem
+        key={ExperimentAction.MODIFY_EXPERIMENT_INFO}
+        id={ExperimentAction.MODIFY_EXPERIMENT_INFO}
+      >
+        <Flex
+          direction="row"
+          gap="size-75"
+          justifyContent="start"
+          alignItems="center"
+        >
+          <Icon svg={<Icons.Edit2Outline />} />
+          <Text>Modify Experiment Info</Text>
+        </Flex>
+      </MenuItem>
+    );
+  }
 
   return (
     <StopPropagation>
@@ -197,6 +230,10 @@ export function ExperimentActionMenu(props: ExperimentActionMenuProps) {
                 }
                 case ExperimentAction.DELETE_EXPERIMENT: {
                   setIsDeleteDialogOpen(true);
+                  break;
+                }
+                case ExperimentAction.MODIFY_EXPERIMENT_INFO: {
+                  setIsModifyExperimentInfoDialogOpen(true);
                   break;
                 }
                 default: {
@@ -269,6 +306,25 @@ export function ExperimentActionMenu(props: ExperimentActionMenuProps) {
                 </DialogTitleExtra>
               </DialogHeader>
               <JSONBlock value={JSON.stringify(props.metadata, null, 2)} />
+            </DialogContent>
+          </Dialog>
+        </Modal>
+      </ModalOverlay>
+      {/* Modify Experiment Info */}
+      <ModalOverlay
+        isDismissable
+        isOpen={isModifyExperimentInfoDialogOpen}
+        onOpenChange={setIsModifyExperimentInfoDialogOpen}
+      >
+        <Modal size="S">
+          <Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Modify Experiment Info</DialogTitle>
+                <DialogTitleExtra>
+                  <DialogCloseButton />
+                </DialogTitleExtra>
+              </DialogHeader>
             </DialogContent>
           </Dialog>
         </Modal>
