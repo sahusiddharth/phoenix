@@ -10,8 +10,9 @@
 * [User Guide](user-guide.md)
 * [Environments](environments.md)
 * [Phoenix Demo](https://phoenix-demo.arize.com/projects)
-* [End to End Phoenix Features Notebook ](https://colab.research.google.com/github/Arize-ai/phoenix/blob/main/tutorials/llm_ops_overview.ipynb)
+* [End to End Phoenix Features Notebook](https://colab.research.google.com/github/Arize-ai/phoenix/blob/main/tutorials/llm_ops_overview.ipynb)
 * [Production Guide](production-guide.md)
+* [Integrations](section-integrations/README.md)
 
 ## Tracing
 
@@ -29,7 +30,7 @@
   * [Setup Tracing](tracing/how-to-tracing/setup-tracing/README.md)
     * [Setup using Phoenix OTEL](tracing/how-to-tracing/setup-tracing/setup-using-phoenix-otel.md)
     * [Setup using base OTEL](tracing/how-to-tracing/setup-tracing/custom-spans.md)
-    * [Using Phoenix Decorators](tracing/how-to-tracing/setup-tracing/instrument-python.md)
+    * [Using Tracing Helpers](tracing/how-to-tracing/setup-tracing/instrument.md)
     * [Setup Tracing (TS)](tracing/how-to-tracing/setup-tracing/javascript.md)
     * [Setup Projects](tracing/how-to-tracing/setup-tracing/setup-projects.md)
     * [Setup Sessions](tracing/how-to-tracing/setup-tracing/setup-sessions.md)
@@ -93,6 +94,7 @@
   * [Run Experiments](datasets-and-experiments/how-to-experiments/run-experiments.md)
   * [Using Evaluators](datasets-and-experiments/how-to-experiments/using-evaluators.md)
   * [Repetitions](datasets-and-experiments/how-to-experiments/repetitions.md)
+  * [Splits](datasets-and-experiments/how-to-experiments/splits.md)
 * [Concepts: Datasets](datasets-and-experiments/concepts-datasets.md)
 
 ## Evaluation
@@ -114,11 +116,11 @@
   * [Custom LLM Evaluators](evaluation/how-to-evals/custom-llm-evaluators.md)
   * [Configuring the LLM](evaluation/how-to-evals/configuring-the-llm/README.md)
     * [Calling models with LiteLLM](evaluation/how-to-evals/configuring-the-llm/calling-models-with-litellm.md)
-  * [Heuristic Evaluators](evaluation/how-to-evals/heuristic-evaluators.md)
+  * [Code Evaluators](evaluation/how-to-evals/code-evaluators.md)
   * [Batch Evaluations](evaluation/how-to-evals/batch-evaluations.md)
   * [Using Evals with Phoenix](evaluation/how-to-evals/using-evals-with-phoenix.md)
 * [Pre-Built Evals](evaluation/running-pre-tested-evals/README.md)
-  * [Heuristic Metrics](evaluation/running-pre-tested-evals/heuristic-metrics.md)
+  * [Code Metrics](evaluation/running-pre-tested-evals/code-metrics.md)
   * [Hallucination](evaluation/running-pre-tested-evals/hallucinations.md)
   * [Q\&A on Retrieved Data](evaluation/running-pre-tested-evals/q-and-a-on-retrieved-data.md)
   * [Retrieval (RAG) Relevance](evaluation/running-pre-tested-evals/retrieval-rag-relevance.md)

@@ -1,5 +1,17 @@
 # @arizeai/phoenix-otel
 
+## 0.3.0
+
+### Minor Changes
+
+- 419ea76: feat: Upgrade @arizeai/openinference-vercel for improved ai sdk support
+
+## 0.2.1
+
+### Patch Changes
+
+- 8bbff3a: readme examples
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,22 @@
-import { queue } from "async";
-import invariant from "tiny-invariant";
+import {
+  MimeType,
+  OpenInferenceSpanKind,
+  SemanticConventions,
+} from "@arizeai/openinference-semantic-conventions";
+import {
+  createNoOpProvider,
+  type DiagLogLevel,
+  NodeTracerProvider,
+  objectAsAttributes,
+  register,
+  SpanStatusCode,
+  trace,
+  Tracer,
+} from "@arizeai/phoenix-otel";
+
 import { createClient, type PhoenixClient } from "../client";
+import { getDataset } from "../datasets/getDataset";
+import { AnnotatorKind } from "../types/annotations";
 import { ClientFn } from "../types/core";
 import {
   Dataset,
@@ -10,41 +26,29 @@ import {
 } from "../types/datasets";
 import type {
   Evaluator,
-  ExperimentInfo,
   ExperimentEvaluationRun,
+  ExperimentInfo,
   ExperimentRun,
   ExperimentRunID,
   ExperimentTask,
   RanExperiment,
 } from "../types/experiments";
 import { type Logger } from "../types/logger";
-import { getDataset } from "../datasets/getDataset";
+import { ensureString } from "../utils/ensureString";
 import { pluralize } from "../utils/pluralize";
 import { promisifyResult } from "../utils/promisifyResult";
-import { AnnotatorKind } from "../types/annotations";
+import { toObjectHeaders } from "../utils/toObjectHeaders";
 import {
-  type DiagLogLevel,
-  SpanStatusCode,
-  Tracer,
-  trace,
-  NodeTracerProvider,
-  objectAsAttributes,
-  createNoOpProvider,
-  register,
-} from "@arizeai/phoenix-otel";
-import {
-  MimeType,
-  OpenInferenceSpanKind,
-  SemanticConventions,
-} from "@arizeai/openinference-semantic-conventions";
-import { ensureString } from "../utils/ensureString";
-import {
-  getDatasetUrl,
   getDatasetExperimentsUrl,
+  getDatasetUrl,
   getExperimentUrl,
 } from "../utils/urlUtils";
+
+import { getExperimentInfo } from "./getExperimentInfo";
+
 import assert from "assert";
-import { toObjectHeaders } from "../utils/toObjectHeaders";
+import { queue } from "async";
+import invariant from "tiny-invariant";
 
 /**
  * Validate that a repetition is valid
@@ -198,6 +202,8 @@ export async function runExperiment({
   let taskTracer: Tracer;
   let experiment: ExperimentInfo;
   if (isDryRun) {
+    const now = new Date().toISOString();
+    const totalExamples = nExamples;
     experiment = {
       id: localId(),
       datasetId: dataset.id,
@@ -206,6 +212,13 @@ export async function runExperiment({
       datasetSplits: datasetSelector?.splits ?? [],
       projectName,
       metadata: experimentMetadata,
+      repetitions,
+      createdAt: now,
+      updatedAt: now,
+      exampleCount: totalExamples,
+      successfulRunCount: 0,
+      failedRunCount: 0,
+      missingRunCount: totalExamples * repetitions,
     };
     taskTracer = createNoOpProvider().getTracer("no-op");
   } else {
@@ -239,7 +252,14 @@ export async function runExperiment({
       // @todo: the dataset should return splits in response body
       datasetSplits: datasetSelector?.splits ?? [],
       projectName,
-      metadata: experimentResponse.metadata,
+      repetitions: experimentResponse.repetitions,
+      metadata: experimentResponse.metadata || {},
+      createdAt: experimentResponse.created_at,
+      updatedAt: experimentResponse.updated_at,
+      exampleCount: experimentResponse.example_count,
+      successfulRunCount: experimentResponse.successful_run_count,
+      failedRunCount: experimentResponse.failed_run_count,
+      missingRunCount: experimentResponse.missing_run_count,
     };
     // Initialize the tracer, now that we have a project name
     const baseUrl = client.config.baseUrl;
@@ -331,6 +351,16 @@ export async function runExperiment({
   ranExperiment.evaluationRuns = evaluationRuns;
 
   logger.info(`✅ Experiment ${experiment.id} completed`);
+
+  // Refresh experiment info from server to get updated counts (non-dry-run only)
+  if (!isDryRun) {
+    const updatedExperiment = await getExperimentInfo({
+      client,
+      experimentId: experiment.id,
+    });
+    // Update the experiment info with the latest from the server
+    Object.assign(ranExperiment, updatedExperiment);
+  }
 
   if (!isDryRun && client.config.baseUrl) {
     const experimentUrl = getExperimentUrl({
@@ -644,7 +674,7 @@ export async function evaluateExperiment({
             [SemanticConventions.OPENINFERENCE_SPAN_KIND]:
               OpenInferenceSpanKind.EVALUATOR,
             [SemanticConventions.INPUT_MIME_TYPE]: MimeType.JSON,
-            [SemanticConventions.INPUT_VALUE]: JSON.stringify({
+            [SemanticConventions.INPUT_VALUE]: ensureString({
               input: examplesById[evaluatorAndRun.run.datasetExampleId]?.input,
               output: evaluatorAndRun.run.output,
               expected:

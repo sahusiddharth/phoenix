@@ -1,5 +1,43 @@
 # @arizeai/phoenix-client
 
+## 5.3.0
+
+### Minor Changes
+
+- 557865c: Add experiment resume and management features
+
+  **New APIs:**
+  - `createExperiment()` - Create an experiment without running it
+  - `resumeExperiment()` - Resume incomplete experiment runs (handles failed or missing runs)
+  - `resumeEvaluation()` - Add evaluations to completed experiments or retry failed evaluations
+  - `listExperiments()` - List experiments with filtering and pagination
+  - `deleteExperiment()` - Delete experiments
+
+### Patch Changes
+
+- b000189: fix bug with channel error
+- 0c92232: allow metadata when creating prompts
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies [419ea76]
+  - @arizeai/phoenix-otel@0.3.0
+
+## 5.2.0
+
+### Minor Changes
+
+- f9d8b06: switch licensing to apache 2
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies [8bbff3a]
+  - @arizeai/phoenix-otel@0.2.1
+
 ## 5.1.0
 
 ### Minor Changes

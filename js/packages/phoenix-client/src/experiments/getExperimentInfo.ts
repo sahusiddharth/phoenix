@@ -1,7 +1,8 @@
-import invariant from "tiny-invariant";
 import { createClient } from "../client";
 import { ClientFn } from "../types/core";
 import { type ExperimentInfo } from "../types/experiments";
+
+import invariant from "tiny-invariant";
 
 export type GetExperimentParams = ClientFn & {
   /**
@@ -31,7 +32,14 @@ export async function getExperimentInfo({
     id: experimentData.id,
     datasetId: experimentData.dataset_id,
     datasetVersionId: experimentData.dataset_version_id,
-    projectName: experimentData.project_name || "", // This will never happen
-    metadata: experimentData.metadata,
+    repetitions: experimentData.repetitions,
+    metadata: experimentData.metadata || {},
+    projectName: experimentData.project_name || null,
+    createdAt: experimentData.created_at,
+    updatedAt: experimentData.updated_at,
+    exampleCount: experimentData.example_count,
+    successfulRunCount: experimentData.successful_run_count,
+    failedRunCount: experimentData.failed_run_count,
+    missingRunCount: experimentData.missing_run_count,
   };
 }
